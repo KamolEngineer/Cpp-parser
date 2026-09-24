@@ -20,9 +20,25 @@ struct nodeCoeffs
 };
 
 
+class fileHandler
+{
+    private:
+        fstream file;
+  
+    public:
+        fileHandler(){}
+        
+        ~fileHandler()
+        {
+            cout << "File has been closed:\n";
+        }
+};
+
 int main(void)
 {
     fstream inputHtml("Tekst.html", std::ios::in);
+
+    fileHandler inputFile, outputFile;
 
     if(false == inputHtml.is_open())
     {
