@@ -24,12 +24,41 @@ class fileHandler
 {
     private:
         fstream file;
+        string fileContent;
+
+        void gatherFileContent()
+        {
+            string oneTextLine;
+
+            while(getline(file, oneTextLine))
+            {
+                fileContent+=oneTextLine+"\n";
+            }
+        }
   
     public:
+
         fileHandler(){}
+        fileHandler(const string fileName, std::ios_base::openmode opMode): file(fileName, opMode)
+        {
+            if(true == fileIsOpen())
+            {
+                gatherFileContent();
+            }
+        }
+
+        bool fileIsOpen()
+        {
+            return file.is_open();
+        }
         
         ~fileHandler()
         {
+            if(true == fileIsOpen())
+            {
+                file.close();
+            }
+            
             cout << "File has been closed:\n";
         }
 };
