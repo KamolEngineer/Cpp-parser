@@ -43,13 +43,21 @@ class fileHandler
         {
             if(true == fileIsOpen())
             {
-                gatherFileContent();
+                if(opMode == std::ios::in)
+                {
+                    gatherFileContent();
+                }
             }
         }
 
         bool fileIsOpen()
         {
             return file.is_open();
+        }
+
+        const string getFileContent()
+        {
+            return fileContent;
         }
         
         ~fileHandler()
@@ -67,7 +75,7 @@ int main(void)
 {
     fstream inputHtml("Tekst.html", std::ios::in);
 
-    fileHandler inputFile, outputFile;
+    fileHandler inputFile("Tekst.html", std::ios::in), outputFile;
 
     if(false == inputHtml.is_open())
     {
@@ -83,7 +91,8 @@ int main(void)
             textFromFile+=oneTextLine+"\n";
         }
         
-        cout << textFromFile << endl;
+        cout << "Text from fstream:\n"<< textFromFile << endl << endl;
+        cout << "Text from class:\n"<< inputFile.getFileContent() << endl << endl;
 
         regex regex1(R"((("itemWidth"|"xOffset")><int>)(\d+))");
         regex regex2(R"((("itemHeight"|"yOffset")><int>)(\d+))");
@@ -105,8 +114,6 @@ int main(void)
             string newNode = match[1].str() + std::to_string(newValue);
             textFromFile = std::regex_replace(textFromFile, oneElemnt.regForNode, newNode);
         }
-
-        cout << textFromFile << endl;
 
         fstream outputHtml("Tekst_out.html", std::ios::out);
 
