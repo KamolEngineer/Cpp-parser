@@ -92,8 +92,6 @@ int main(void)
     {
         std::smatch match;
 
-        cout << "Input text from class:\n"<< inputFile.getFileContent() << endl << endl;
-
         regex regex1(R"((("itemWidth"|"xOffset")><int>)(\d+))");
         regex regex2(R"((("itemHeight"|"yOffset")><int>)(\d+))");
         regex regex3(R"((("fontSize"|"titleFontSize")><int>)(\d+))");
@@ -118,8 +116,6 @@ int main(void)
         fileHandler outputFile("Tekst_out.html", std::ios::out);
 
         outputFile.fillTheFile(inputFile.getFileContent());
-
-        cout << "Output text from class:\n"<< inputFile.getFileContent() << endl << endl;
     }
 
     return 0;
