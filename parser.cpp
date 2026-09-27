@@ -20,25 +20,77 @@ struct nodeCoeffs
 };
 
 
+class fileHandler
+{
+    private:
+        fstream file;
+        string fileContent;
+        std::ios_base::openmode operationMode;
+
+        void gatherFileContent()
+        {
+            string oneTextLine;
+
+            while(getline(file, oneTextLine))
+            {
+                fileContent+=oneTextLine+"\n";
+            }
+        }
+  
+    public:
+        fileHandler(){}
+        fileHandler(const string fileName, std::ios_base::openmode opMode): file(fileName, opMode), operationMode(opMode)
+        {
+            if(true == fileIsOpen())
+            {
+                if(operationMode == std::ios::in)
+                {
+                    gatherFileContent();
+                }
+            }
+        }
+
+        bool fileIsOpen()
+        {
+            return file.is_open();
+        }
+
+        string & getFileContent()
+        {
+            return fileContent;
+        }
+
+        void fillTheFile(const string text2Write)
+        {
+            if(operationMode == std::ios::out)
+            {
+                fileContent = text2Write;
+                file << fileContent;
+            }
+        }
+        
+        ~fileHandler()
+        {
+            if(true == fileIsOpen())
+            {
+                file.close();
+            }
+            
+            cout << "File has been closed:\n";
+        }
+};
+
 int main(void)
 {
-    fstream inputHtml("Tekst.html", std::ios::in);
+    fileHandler inputFile("Tekst.html", std::ios::in);
 
-    if(false == inputHtml.is_open())
+    if(false == inputFile.fileIsOpen())
     {
         cout << "File cannot be opended\n";
     }
     else
     {
-        string textFromFile, oneTextLine;
         std::smatch match;
-
-        while(getline(inputHtml, oneTextLine))
-        {
-            textFromFile+=oneTextLine+"\n";
-        }
-        
-        cout << textFromFile << endl;
 
         regex regex1(R"((("itemWidth"|"xOffset")><int>)(\d+))");
         regex regex2(R"((("itemHeight"|"yOffset")><int>)(\d+))");
@@ -51,26 +103,20 @@ int main(void)
         
         for(auto oneElemnt:allRegsAndCoeffs)
         {
-            std::regex_search(textFromFile, match, oneElemnt.regForNode);
+            std::regex_search(inputFile.getFileContent(), match, oneElemnt.regForNode);
 
             //Convert number to int and recalculate
             int newValue = stoi(match[3])*oneElemnt.coeffs;
 
             //Setting new value
             string newNode = match[1].str() + std::to_string(newValue);
-            textFromFile = std::regex_replace(textFromFile, oneElemnt.regForNode, newNode);
+            inputFile.getFileContent() = std::regex_replace(inputFile.getFileContent(), oneElemnt.regForNode, newNode);
         }
 
-        cout << textFromFile << endl;
+        fileHandler outputFile("Tekst_out.html", std::ios::out);
 
-        fstream outputHtml("Tekst_out.html", std::ios::out);
-
-        //Write to new file
-        outputHtml << textFromFile;
-        outputHtml.close();
+        outputFile.fillTheFile(inputFile.getFileContent());
     }
-
-    inputHtml.close();
 
     return 0;
 }
